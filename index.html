@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Art Canvas</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="artCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById("artCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Full screen canvas
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Array to store floating shapes
+    let shapes = [];
+
+    // Function to create a random color
+    function randomColor() {
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    // Shape class to create shapes
+    class Shape {
+        constructor(x, y, size, color) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.color = color;
+            this.dx = Math.random() * 2 - 1;
+            this.dy = Math.random() * 2 - 1;
+            this.opacity = 1;
+        }
+
+        // Draw the shape
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = this.opacity;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        // Update the position of the shape
+        update() {
+            this.x += this.dx;
+            this.y += this.dy;
+            this.opacity -= 0.01;
+        }
+    }
+
+    // Function to create a new shape
+    function createShape(event) {
+        const size = Math.random() * 50 + 10;
+        const color = randomColor();
+        const shape = new Shape(event.clientX, event.clientY, size, color);
+        shapes.push(shape);
+    }
+
+    // Function to animate the shapes
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        shapes.forEach((shape, index) => {
+            shape.update();
+            shape.draw();
+
+            // Remove shapes when they fade out
+            if (shape.opacity <= 0) {
+                shapes.splice(index, 1);
+            }
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    // Event listener for clicks
+    canvas.addEventListener("click", createShape);
+
+    // Start the animation
+    animate();
+
+    // Resize canvas when window is resized
+    window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
+
+</body>
+</html>
